@@ -9,8 +9,7 @@
         	cw.sendMessage(roomid, "テスト\nてすと")
 
 """
-import urllib
-import urllib2
+import requests
 import json
 
 class Chatwork: 
@@ -24,7 +23,7 @@ class Chatwork:
 	"""
 	def __init__(self, apiToken):
 		self.apiToken = apiToken
-		self.reqHeader = Chatwork.TOKEN_HEADER_KEY + self.apiToken
+		self.reqHeader = {Chatwork.TOKEN_HEADER_KEY: self.apiToken}
 		self.getRooms()
 
 
@@ -33,15 +32,11 @@ class Chatwork:
 	"""
 	def getRooms(self):
 		uri = "https://api.chatwork.com/v1/rooms"
-		req = urllib2.Request(uri)
-		req.add_header(Chatwork.TOKEN_HEADER_KEY, self.apiToken)
-		res = urllib2.urlopen(req)
-		ret = res.read()		
-		ret = json.loads(ret)
-		
+		req = requests.get(uri, headers=self.reqHeader)
+		ret = json.loads(req.text)
 		self.rooms = {}
 		for item in ret:
-			self.rooms[item["name"].encode('utf-8')] = item["room_id"]	
+			self.rooms[item["name"]] = item["room_id"]	
 			
 
 
@@ -51,7 +46,7 @@ class Chatwork:
 	 - roomNameが存在しない場合はfalseを返す
 	"""
 	def getRoomID(self, roomName):
-		return self.rooms[roomName] if self.rooms.has_key(roomName) else False
+		return self.rooms[roomName] if roomName in self.rooms else False
 
 
 	"""
@@ -61,13 +56,7 @@ class Chatwork:
 	"""
 	def sendMessage(self, roomId, msg):
 		uri = "https://api.chatwork.com/v1/rooms/" + str(roomId) + "/messages"
-		params = {"body": msg}
-		params = urllib.urlencode(params)
-
-		req = urllib2.Request(uri)
-		req.add_header(Chatwork.TOKEN_HEADER_KEY, self.apiToken)
-		req.add_data(params)
-		res = urllib2.urlopen(req)
-		ret = res.read()
-		return json.loads(ret)
+		data = {"body": msg}
+		req = requests.post(uri, headers=self.reqHeader, data=data)
+		return json.loads(req.text)
 

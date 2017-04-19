@@ -31,7 +31,7 @@ class Chatwork:
 	ルーム一覧取得
 	"""
 	def getRooms(self):
-		uri = "https://api.chatwork.com/v1/rooms"
+		uri = "https://api.chatwork.com/v2/rooms"
 		req = requests.get(uri, headers=self.reqHeader)
 		ret = json.loads(req.text)
 		self.rooms = {}
@@ -55,7 +55,7 @@ class Chatwork:
 	 - msg: メッセージ
 	"""
 	def sendMessage(self, roomId, msg):
-		uri = "https://api.chatwork.com/v1/rooms/" + str(roomId) + "/messages"
+		uri = "https://api.chatwork.com/v2/rooms/" + str(roomId) + "/messages"
 		data = {"body": msg}
 		req = requests.post(uri, headers=self.reqHeader, data=data)
 		return json.loads(req.text)
